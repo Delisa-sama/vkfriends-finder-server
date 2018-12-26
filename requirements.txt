@@ -1,0 +1,4 @@
+vk
+aiohttp_session
+cryptography
+aiohttp
