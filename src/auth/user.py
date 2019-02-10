@@ -3,7 +3,7 @@ from src.logic.vkapirequest import VKAPIRequest
 
 class User:
 
-    def __init__(self, data, **kw):
+    def __init__(self, data):
         self.login = data['login']
         self.password = data['password']
         self.vk_api = None
@@ -17,4 +17,7 @@ class User:
         else:
             self.vk_api = result['vk_api']
             self.vk_session = result['vk_session']
-            return result['status']
+            return result
+
+
+pool = dict()

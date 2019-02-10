@@ -13,6 +13,7 @@ from src.logic.websocket import WebSocket
 ROUTES = [
     ('GET', '/ws', 'ws', WebSocket),
     ('*', '/login', 'login', Login),
+    # TODO: add get_friends and get_posts routes
 ]
 
 

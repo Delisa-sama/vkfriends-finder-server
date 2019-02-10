@@ -1,32 +1,43 @@
 import json
 
 from aiohttp import web, WSMsgType, log
-from aiohttp_session import get_session
 
-from src.auth.user import User
+from src.auth.user import User, pool as users
+from src.logic.vkapirequest import VKAPIRequest
 
 
 class WebSocket(web.View):
     async def get(self):
         ws = web.WebSocketResponse()
         await ws.prepare(self.request)
-
-        session = await get_session(self.request)  # TODO: check user session
-
         self.request.app['websockets'].append(ws)
 
         async for msg in ws:
             if msg.type == WSMsgType.TEXT:
                 json_request = json.loads(msg.data)
+
                 if json_request['action'] == 'close':
                     await ws.close()
+
                 elif json_request['action'] == 'login':
-                    # TODO: add user to session
                     user = User(data=json_request['data'])
                     result = await user.vk_auth()
                     if result['status'] == 'ERROR':
                         await ws.send_json(data=result)
+                    else:
+                        users[user.vk_session.access_token] = user
+                        await ws.send_json({'status': result['status'], 'token': user.vk_session.access_token})
+
                     log.server_logger.debug(result)
+
+                elif json_request['action'] == 'get_friends':
+                    token = json_request['token']
+                    if token not in users:
+                        await ws.send_json({'status': 'ERROR', 'exception': 'Token not found'})
+                    else:
+                        request = VKAPIRequest()
+                        result = await request.get_friends(user=users[token], id=json_request['id'])
+                        await ws.send_json(result)
 
             elif msg.type == WSMsgType.ERROR:
                 log.server_logger.debug('ws connection closed with exception %s' % ws.exception())
