@@ -1,4 +1,4 @@
-from src.logic.vkapirequest import VKAPIRequest
+from src.API.vkapirequest import VKAPIRequest
 
 
 class User:

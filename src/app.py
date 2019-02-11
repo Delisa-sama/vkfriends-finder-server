@@ -7,12 +7,22 @@ from aiohttp_session import session_middleware
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
 
-from src.auth.login import Login
-from src.logic.websocket import WebSocket
+from src.HTTP.getPosts import HTTPGetPosts
+from src.HTTP.login import HTTPLogin
+from src.HTTP.logout import HTTPLogout
+from src.websocket.getFriends import WSGetFriends
+from src.websocket.login import WSLogin
+from src.websocket.logout import WSLogout
+from src.websocket.root import WSRoot
 
 ROUTES = [
-    ('GET', '/ws', 'ws', WebSocket),
-    ('*', '/login', 'login', Login),
+    ('GET', '/ws', 'wsroot', WSRoot),
+    ('GET', '/ws/login', 'wslogin', WSLogin),
+    ('GET', '/ws/logout', 'wslogout', WSLogout),
+    ('GET', '/ws/friends', 'wsgetfriends', WSGetFriends),
+    ('POST', '/login', 'httplogin', HTTPLogin),
+    ('POST', '/logout', 'httplogout', HTTPLogout),
+    ('GET', '/posts', 'httpposts', HTTPGetPosts),
     # TODO: add get_friends and get_posts routes
 ]
 

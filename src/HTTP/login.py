@@ -1,15 +1,9 @@
 from aiohttp import web
-from aiohttp_session import get_session
 
-from src.auth.user import User
+from src.API.user import User
 
 
-class Login(web.View):
-
-    async def get(self):
-        session = await get_session(self.request)
-        # TODO: check user in session
-
+class HTTPLogin(web.View):
     async def post(self):
         data = await self.request.post()
         user = User(data)
@@ -18,5 +12,4 @@ class Login(web.View):
         if result['status'] == 'ERROR':
             return web.json_response(result)
 
-        session = await get_session(self.request)
         # TODO add user to session
