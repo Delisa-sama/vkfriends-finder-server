@@ -8,17 +8,25 @@ from src.API.user import pool as users
 
 def authentication(func):
     async def wrapper(view: web.View):
-        qs = urlparse(str(view.request.url))
-        query_params = parse_qs(qs.query)
-        token = query_params['token'][0]
+        url = urlparse(str(view.request.url))
+        query_params = parse_qs(url.query)
+        try:
+            token = query_params['token'][0]
+        except KeyError as e:
+            view.request.app['logger'].error(str(e))
+            token = None
 
         if token in users:
-            ws = await func(view, token)
+            response = await func(view, token)
+        elif url.scheme == 'ws':
+            response = web.WebSocketResponse()
+            await response.prepare(view.request)
+            await response.send_json({'status': HTTPStatus.UNAUTHORIZED,
+                                      'reason': "Not authenticated token, login please."})
         else:
-            ws = web.WebSocketResponse()
-            await ws.prepare(view.request)
-            await ws.send_json({'status': HTTPStatus.UNAUTHORIZED,
-                                'reason': "Not authenticated token, login please."})
-        return ws
+            response = web.json_response({'status': HTTPStatus.UNAUTHORIZED,
+                                          'reason': "Not authenticated token, login please."})
+
+        return response
 
     return wrapper

@@ -14,10 +14,8 @@ from src.logger import init_logger
 from src.websocket.getFriends import WSGetFriends
 from src.websocket.login import WSLogin
 from src.websocket.logout import WSLogout
-from src.websocket.root import WSRoot
 
 ROUTES = [
-    ('GET', '/ws', 'wsroot', WSRoot),
     ('GET', '/ws/login', 'wslogin', WSLogin),
     ('GET', '/ws/logout', 'wslogout', WSLogout),
     ('GET', '/ws/friends', 'wsgetfriends', WSGetFriends),
@@ -53,7 +51,8 @@ if not os.path.exists('./static'):
     os.mkdir('./static')
 
 app['static_root_url'] = '/static'
-app.router.add_static('/static', 'static', name='static')
+app.router.add_static(prefix='/static', path='static', name='static')
+app.router.add_static(prefix='/', path='static', name='index')
 
 app.on_cleanup.append(on_shutdown)
 app['websockets'] = []
