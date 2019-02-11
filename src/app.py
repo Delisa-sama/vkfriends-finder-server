@@ -2,7 +2,7 @@ import base64
 import hashlib
 import os
 
-from aiohttp import web, log
+from aiohttp import web
 from aiohttp_session import session_middleware
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
@@ -10,6 +10,7 @@ from cryptography import fernet
 from src.HTTP.getPosts import HTTPGetPosts
 from src.HTTP.login import HTTPLogin
 from src.HTTP.logout import HTTPLogout
+from src.logger import init_logger
 from src.websocket.getFriends import WSGetFriends
 from src.websocket.login import WSLogin
 from src.websocket.logout import WSLogout
@@ -23,7 +24,6 @@ ROUTES = [
     ('POST', '/login', 'httplogin', HTTPLogin),
     ('POST', '/logout', 'httplogout', HTTPLogout),
     ('GET', '/posts', 'httpposts', HTTPGetPosts),
-    # TODO: add get_friends and get_posts routes
 ]
 
 
@@ -43,7 +43,8 @@ middle = [
         )
     )
 ]
-app = web.Application(middlewares=middle)
+
+app = web.Application()
 
 for route in ROUTES:
     app.router.add_route(method=route[0], path=route[1], name=route[2], handler=route[3])
@@ -57,6 +58,8 @@ app.router.add_static('/static', 'static', name='static')
 app.on_cleanup.append(on_shutdown)
 app['websockets'] = []
 
-log.server_logger.debug('start server')
+app['logger'] = init_logger()
+
+app['logger'].info("Start")
 web.run_app(app)
-log.server_logger.debug('Stop server end')
+app['logger'].info("Server closing")

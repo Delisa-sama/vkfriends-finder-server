@@ -3,9 +3,9 @@ from src.API.vkapirequest import VKAPIRequest
 
 class User:
 
-    def __init__(self, data):
-        self.login = data['login']
-        self.password = data['password']
+    def __init__(self, login, password):
+        self.login = login
+        self.password = password
         self.vk_api = None
         self.vk_session = None
 

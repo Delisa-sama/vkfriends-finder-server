@@ -16,7 +16,7 @@ class VKAPIRequest:
 
         return {'status': 'OK', "friends": str(friends)}
 
-    async def get_posts(self):
+    async def get_posts(self, *args):
         # TODO: get posts from VKAPI
         return {"posts": [12234, 2325421, 4535345]}
 
