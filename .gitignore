@@ -5,6 +5,6 @@ output/
 src/static/
 src/test/
 src/todos
-src/__pycache__/
 src/auth/__pycache__/
 src/logic/__pycache__/
+src/logs/
