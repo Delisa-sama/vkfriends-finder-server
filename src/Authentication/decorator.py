@@ -3,8 +3,6 @@ from urllib.parse import parse_qs, urlparse
 
 from aiohttp import web
 
-from src.API.user import pool as users
-
 
 def authentication(func):
     async def wrapper(view: web.View):
@@ -16,7 +14,7 @@ def authentication(func):
             view.request.app['logger'].error(str(e))
             token = None
 
-        if token in users:
+        if token in view.request.app['users']:
             response = await func(view, token)
         elif url.scheme == 'ws':
             response = web.WebSocketResponse()

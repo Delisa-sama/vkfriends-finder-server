@@ -2,7 +2,7 @@ import json
 
 from aiohttp import web, WSMsgType
 
-from src.API.user import User, pool as users
+from src.API.user import User
 
 
 class WSLogin(web.View):
@@ -21,7 +21,7 @@ class WSLogin(web.View):
                     self.request.app['logger'].error(result)
                     await ws.send_json(data=result)
                 else:
-                    users[user.vk_session.access_token] = user
+                    self.request.app['users'][user.vk_session.access_token] = user
                     await ws.send_json({'status': result['status'], 'token': user.vk_session.access_token})
 
                     self.request.app['logger'].info(result)

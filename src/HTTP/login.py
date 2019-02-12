@@ -1,6 +1,6 @@
 from aiohttp import web
 
-from src.API.user import User, pool as users
+from src.API.user import User
 
 
 class HTTPLogin(web.View):
@@ -13,5 +13,5 @@ class HTTPLogin(web.View):
         if result['status'] == 'ERROR':
             return web.json_response(result)
 
-        users[user.vk_session.access_token] = user
+        self.request.app['users'][user.vk_session.access_token] = user
         return web.json_response(result)

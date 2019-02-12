@@ -5,10 +5,12 @@ from src.Authentication.decorator import authentication
 
 class WSLogout(web.View):
     @authentication
-    async def get(self):
+    async def get(self, token):
         ws = web.WebSocketResponse()
         await ws.prepare(self.request)
         self.request.app['websockets'].append(ws)
+
+        self.request.app['users'][token] = None
 
         await ws.send_json({'status': "OK"})
 

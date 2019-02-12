@@ -18,6 +18,3 @@ class User:
             self.vk_api = result['vk_api']
             self.vk_session = result['vk_session']
             return result
-
-
-pool = dict()

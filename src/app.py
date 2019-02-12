@@ -59,6 +59,8 @@ app['websockets'] = []
 
 app['logger'] = init_logger()
 
+app['users'] = dict()
+
 app['logger'].info("Start")
 web.run_app(app)
 app['logger'].info("Server closing")
