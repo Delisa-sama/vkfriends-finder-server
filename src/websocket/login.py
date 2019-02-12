@@ -16,7 +16,7 @@ class WSLogin(web.View):
                 json_request = json.loads(msg.data)
 
                 user = User(login=json_request['login'], password=json_request['password'])
-                result = await user.vk_auth()
+                result = await user.auth()
                 if result['status'] == 'ERROR':
                     self.request.app['logger'].error(result)
                     await ws.send_json(data=result)

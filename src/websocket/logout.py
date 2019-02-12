@@ -10,7 +10,7 @@ class WSLogout(web.View):
         await ws.prepare(self.request)
         self.request.app['websockets'].append(ws)
 
-        self.request.app['users'][token] = None
+        del self.request.app['users'][token]
 
         await ws.send_json({'status': "OK"})
 

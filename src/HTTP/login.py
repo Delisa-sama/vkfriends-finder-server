@@ -9,7 +9,7 @@ class HTTPLogin(web.View):
 
         user = User(login=data['login'], password=data['password'])
 
-        result = await user.vk_auth()
+        result = await user.auth()
         if result['status'] == 'ERROR':
             return web.json_response(result)
 

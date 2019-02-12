@@ -1,17 +1,18 @@
-from src.API.vkapirequest import VKAPIRequest
+from src.API.vkapirequest import auth as vk_auth
 
 
 class User:
 
-    def __init__(self, login, password):
+    def __init__(self,
+                 login: str,
+                 password: str):
         self.login = login
         self.password = password
         self.vk_api = None
         self.vk_session = None
 
-    async def vk_auth(self):
-        req = VKAPIRequest()
-        result = await req.auth({'login': self.login, 'password': self.password})
+    async def auth(self):
+        result = await vk_auth({'login': self.login, 'password': self.password})
         if result['status'] == 'ERROR':
             return result
         else:

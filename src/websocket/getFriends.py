@@ -2,7 +2,7 @@ import json
 
 from aiohttp import web, WSMsgType
 
-from src.API.vkapirequest import VKAPIRequest
+from src.API.vkapirequest import get_friends
 from src.Authentication.decorator import authentication
 
 
@@ -17,9 +17,9 @@ class WSGetFriends(web.View):
             if msg.type == WSMsgType.TEXT:
                 json_request = json.loads(msg.data)
 
-                result = await VKAPIRequest().get_friends(
-                    user=self.request.app['users'][token],
-                    id=json_request['id']
+                result = await get_friends(
+                    api=self.request.app['users'][token].vk_api,
+                    target_id=json_request['id']
                 )
 
                 await ws.send_json(result)
