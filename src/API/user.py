@@ -2,17 +2,28 @@ from src.API.vkapirequest import auth as vk_auth
 
 
 class User:
+    """A Class used to represent current user."""
 
-    def __init__(self,
-                 login: str,
-                 password: str):
-        self.login = login
-        self.password = password
+    def __init__(self):
+        """Inits User class."""
         self.vk_api = None
         self.vk_session = None
 
-    async def auth(self):
-        result = await vk_auth({'login': self.login, 'password': self.password})
+    async def auth(self,
+                   password: str,
+                   login: str) -> dict:
+        """User authentication through VK.
+
+        :param password: User VK password
+        :type: str
+
+        :param login: E-Mail or user phone from VK
+        :type: str
+
+        :return: Dictionary with authentication result
+        :rtype: dict
+        """
+        result = await vk_auth({'login': login, 'password': password})
         if result['status'] == 'ERROR':
             return result
         else:

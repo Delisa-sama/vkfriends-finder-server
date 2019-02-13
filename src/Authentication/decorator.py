@@ -1,11 +1,21 @@
+import typing
 from http import HTTPStatus
 from urllib.parse import parse_qs, urlparse
 
 from aiohttp import web
 
 
-def authentication(func):
-    async def wrapper(view: web.View):
+def authentication(func: typing.Callable) -> typing.Callable:
+    """A authentication decorator.
+
+    :param func: A function to decorate.
+    :rtype: typing.Callable
+
+    :return: Return a wrapper function.
+    :rtype: typing.Callable
+    """
+
+    async def wrapper(view: web.View) -> web.Response:
         url = urlparse(str(view.request.url))
         query_params = parse_qs(url.query)
         try:

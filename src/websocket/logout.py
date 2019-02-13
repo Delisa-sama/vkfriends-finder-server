@@ -4,8 +4,10 @@ from src.Authentication.decorator import authentication
 
 
 class WSLogout(web.View):
+    """A Class used to represent Web View of Logout method via WebSocket."""
+
     @authentication
-    async def get(self, token):
+    async def get(self, token: str) -> web.WebSocketResponse:
         ws = web.WebSocketResponse()
         await ws.prepare(self.request)
         self.request.app['websockets'].append(ws)

@@ -3,7 +3,7 @@ import os
 from logging.handlers import RotatingFileHandler
 
 
-def init_logger(path='./logs'):
+def init_logger(path='./logs') -> logging.Logger:
     logger = logging.getLogger('PixivPrivate')
     logger.setLevel(logging.INFO)
 

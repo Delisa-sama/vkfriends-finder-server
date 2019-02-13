@@ -7,8 +7,18 @@ from src.Authentication.decorator import authentication
 
 
 class WSGetFriends(web.View):
+    """A Class used to represent Web View of GetFriends method via WebSocket."""
+
     @authentication
-    async def get(self, token):
+    async def get(self, token: str) -> web.WebSocketResponse:
+        """The function allows you to get information about all the friends of a given user.
+
+        :param token: Token of current user.
+        :type: str
+
+        :return: JSON response with result information.
+        :rtype: web.WebSocketResponse
+        """
         ws = web.WebSocketResponse()
         await ws.prepare(self.request)
         self.request.app['websockets'].append(ws)
@@ -16,7 +26,6 @@ class WSGetFriends(web.View):
         async for msg in ws:
             if msg.type == WSMsgType.TEXT:
                 json_request = json.loads(msg.data)
-
                 result = await get_friends(
                     api=self.request.app['users'][token].vk_api,
                     target_id=json_request['id']
