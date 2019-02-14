@@ -1,11 +1,9 @@
-from functools import lru_cache
-
 import vk
 
 from src.settings import VK_API_APP_ID, VK_API_TIMEOUT, VK_API_LANG, VK_API_VERSION
+from src.utils import dict_response
 
 
-@lru_cache(maxsize=1024)
 async def get_info(
         api: vk.api,
         user_ids: list = None):
@@ -37,11 +35,11 @@ async def get_friends(
     try:
         friends = api.friends.get(user_id=target_id)
     except vk.exceptions.VkAPIError as e:
-        return {'status': 'ERROR', 'reason': str(e)}
+        return dict_response(status='ERROR', reason=str(e))
     except AttributeError as e:
-        return {'status': 'ERROR', 'reason': 'Not authenticated'}
+        return dict_response(status='ERROR', reason='Not authenticated')
 
-    return {'status': 'OK', "friends": str(friends)}
+    return dict_response(status='OK', friends=str(friends))
 
 
 async def get_likes(
@@ -70,9 +68,9 @@ async def get_likes(
             extended=1,
         )
     except vk.exceptions.VkAPIError as e:
-        return {'status': 'ERROR', 'reason': str(e)}
+        return dict_response(status='ERROR', reason=str(e))
 
-    return {'status': 'OK', 'likes': likes_people}
+    return dict_response(status='OK', likes=likes_people)
 
 
 async def auth(credentials: dict) -> dict:
@@ -94,5 +92,5 @@ async def auth(credentials: dict) -> dict:
         )
         vk_api = vk.API(vk_session, v=VK_API_VERSION, lang=VK_API_LANG, timeout=VK_API_TIMEOUT)
     except vk.exceptions.VkAuthError as e:
-        return {'status': 'ERROR', 'reason': str(e)}
-    return {'status': 'OK', 'vk_api': vk_api, 'vk_session': vk_session}
+        return dict_response(status='ERROR', reason=str(e))
+    return dict_response(status='OK', vk_api=vk_api, vk_session=vk_session)

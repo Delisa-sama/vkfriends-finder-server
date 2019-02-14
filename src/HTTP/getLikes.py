@@ -2,6 +2,7 @@ from aiohttp import web
 
 from src.API.vkapirequest import get_likes
 from src.Authentication.decorator import authentication
+from src.utils import dict_response
 
 
 class HTTPGetLikes(web.View):
@@ -17,10 +18,16 @@ class HTTPGetLikes(web.View):
         :return: JSON response with result information.
         :rtype: web.Response
         """
-        json = await self.request.json()
-        owner_id = 0
-        item_id = 874
-        print(json)
+        try:
+            owner_id = int(self.request.url.query['owner_id'])
+            item_id = int(self.request.url.query['item_id'])
+        except KeyError as e:
+            self.request.app['logger'].error(str(e))
+            return web.json_response(dict_response(status='ERROR', reason=str(e)))
+        except TypeError as e:
+            self.request.app['logger'].error(str(e))
+            return web.json_response(dict_response(status='ERROR', reason=str(e)))
+
         result = get_likes(
             api=self.request.app['users'][token].vk_api,
             owner_id=owner_id,

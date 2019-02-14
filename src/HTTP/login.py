@@ -1,6 +1,7 @@
 from aiohttp import web
 
 from src.API.user import User
+from src.utils import dict_response
 
 
 class HTTPLogin(web.View):
@@ -14,8 +15,12 @@ class HTTPLogin(web.View):
         """
         data = await self.request.post()
 
-        user = User()
-        result = await user.auth(login=data['login'], password=data['password'])
+        try:
+            user = User()
+            result = await user.auth(login=data['login'], password=data['password'])
+        except KeyError as e:
+            self.request.app['logger'].error(str(e))
+            return web.json_response(dict_response(status='ERROR', reason=str(e)))
         if result['status'] == 'ERROR':
             return web.json_response(result)
 

@@ -1,8 +1,9 @@
 import typing
-from http import HTTPStatus
 from urllib.parse import parse_qs, urlparse
 
 from aiohttp import web
+
+from src.utils import dict_response
 
 
 def authentication(func: typing.Callable) -> typing.Callable:
@@ -29,11 +30,10 @@ def authentication(func: typing.Callable) -> typing.Callable:
         elif url.scheme == 'ws':
             response = web.WebSocketResponse()
             await response.prepare(view.request)
-            await response.send_json({'status': HTTPStatus.UNAUTHORIZED,
-                                      'reason': "Not authenticated token, login please."})
+            await response.send_json(dict_response(status='ERROR', reason="Not authenticated token, login please."))
         else:
-            response = web.json_response({'status': HTTPStatus.UNAUTHORIZED,
-                                          'reason': "Not authenticated token, login please."})
+            response = web.json_response(
+                dict_response(status='ERROR', reason="Not authenticated token, login please."))
 
         return response
 
