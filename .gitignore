@@ -3,8 +3,6 @@ __pycache__/
 .idea/
 output/
 src/static/
-src/test/
+src/tests/
 src/todos
-src/auth/__pycache__/
-src/logic/__pycache__/
 src/logs/

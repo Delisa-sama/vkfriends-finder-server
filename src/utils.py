@@ -1,5 +1,5 @@
 def dict_response(status: str = 'OK',
-                  **kwargs):
+                  **kwargs) -> dict:
     """Рelper function for easy dictionary response creation
 
     :param status: Status of the operation

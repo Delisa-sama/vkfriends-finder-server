@@ -1,3 +1,5 @@
+from urllib import parse
+
 from aiohttp import web
 
 from src.API.vkapirequest import get_likes
@@ -19,8 +21,7 @@ class HTTPGetLikes(web.View):
         :rtype: web.Response
         """
         try:
-            owner_id = int(self.request.url.query['owner_id'])
-            item_id = int(self.request.url.query['item_id'])
+            owner_id, item_id = parse.urlparse(self.request.query['url']).query[6:].split('_')
         except KeyError as e:
             self.request.app['logger'].error(str(e))
             return web.json_response(dict_response(status='ERROR', reason=str(e)))
@@ -28,9 +29,10 @@ class HTTPGetLikes(web.View):
             self.request.app['logger'].error(str(e))
             return web.json_response(dict_response(status='ERROR', reason=str(e)))
 
-        result = get_likes(
+        result = await get_likes(
             api=self.request.app['users'][token].vk_api,
             owner_id=owner_id,
             item_id=item_id,
         )
+
         return web.json_response(result)

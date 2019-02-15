@@ -25,4 +25,4 @@ class HTTPLogin(web.View):
             return web.json_response(result)
 
         self.request.app['users'][user.vk_session.access_token] = user
-        return web.json_response(result)
+        return web.json_response(dict_response(status=result['status'], token=user.vk_session.access_token))

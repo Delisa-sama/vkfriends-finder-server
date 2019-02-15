@@ -21,7 +21,7 @@ ROUTES = [
     ('GET', '/ws/friends', 'wsgetfriends', WSGetFriends),
     ('POST', '/login', 'httplogin', HTTPLogin),
     ('POST', '/logout', 'httplogout', HTTPLogout),
-    ('GET', '/posts', 'httpposts', HTTPGetLikes),
+    ('GET', '/likes', 'httpposts', HTTPGetLikes),
 ]
 
 
