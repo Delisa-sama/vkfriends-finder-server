@@ -30,7 +30,7 @@ class WSGetFriends(web.View):
                     api=self.request.app['users'][token].vk_api,
                     target_id=json_request['id']
                 )
-
+                self.request.app['logger'].info("WSGetFriends.get called.")
                 await ws.send_json(result)
 
             elif msg.type == WSMsgType.ERROR:

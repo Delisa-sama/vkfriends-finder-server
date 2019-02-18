@@ -3,7 +3,7 @@ from urllib.parse import parse_qs, urlparse
 
 from aiohttp import web
 
-from src.utils import dict_response
+from src.API.response import Response
 
 
 def authentication(func: typing.Callable) -> typing.Callable:
@@ -26,14 +26,17 @@ def authentication(func: typing.Callable) -> typing.Callable:
             token = None
 
         if token in view.request.app['users']:
+            view.request.app['logger'].info("User logged in via token.")
             response = await func(view, token)
         elif url.scheme == 'ws':
+            view.request.app['logger'].info("User connected via WebSocket not authenticated.")
             response = web.WebSocketResponse()
             await response.prepare(view.request)
-            await response.send_json(dict_response(status='ERROR', reason="Not authenticated token, login please."))
+            await response.send_json(Response(status='ERROR', reason="Not authenticated token, login please."))
         else:
+            view.request.app['logger'].info("User connected via HTTP not authenticated.")
             response = web.json_response(
-                dict_response(status='ERROR', reason="Not authenticated token, login please."))
+                Response(status='ERROR', reason="Not authenticated token, login please."))
 
         return response
 

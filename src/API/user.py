@@ -1,3 +1,4 @@
+from src.API.response import Response
 from src.API.vkapirequest import auth as vk_auth
 
 
@@ -11,7 +12,7 @@ class User:
 
     async def auth(self,
                    password: str,
-                   login: str) -> dict:
+                   login: str) -> Response:
         """User authentication through VK.
 
         :param password: User VK password
@@ -24,9 +25,7 @@ class User:
         :rtype: dict
         """
         result = await vk_auth({'login': login, 'password': password})
-        if result['status'] == 'ERROR':
-            return result
-        else:
+        if result.is_ok():
             self.vk_api = result['vk_api']
             self.vk_session = result['vk_session']
-            return result
+        return result

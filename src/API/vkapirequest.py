@@ -1,7 +1,7 @@
 import vk
 
+from src.API.response import Response
 from src.settings import VK_API_APP_ID, VK_API_TIMEOUT, VK_API_LANG, VK_API_VERSION
-from src.utils import dict_response
 
 
 async def get_info(
@@ -20,7 +20,7 @@ async def get_info(
 
 async def get_friends(
         api: vk.api,
-        target_id: int = 0) -> dict:
+        target_id: int = 0) -> Response:
     """The function allows you to take information about friends of target user.
 
     :param api: A VKAPI of current user.
@@ -30,22 +30,22 @@ async def get_friends(
     :type: int
 
     :return: A dictionary with the status of the operation and the result of its execution.
-    :rtype: dict
+    :rtype: Response
     """
     try:
         friends = api.friends.get(user_id=target_id)
     except vk.exceptions.VkAPIError as e:
-        return dict_response(status='ERROR', reason=str(e))
+        return Response(status='ERROR', reason=str(e))
     except AttributeError as e:
-        return dict_response(status='ERROR', reason='Not authenticated')
+        return Response(status='ERROR', reason='Not authenticated')
 
-    return dict_response(status='OK', friends=str(friends))
+    return Response(status='OK', friends=str(friends))
 
 
 async def get_likes(
         api: vk.api,
         item_id: int,
-        owner_id: int = 0) -> dict:
+        owner_id: int = 0) -> Response:
     """A function that returns information about people who liked the post with the specified id.
 
     :param api: A VKAPI of current user.
@@ -58,7 +58,7 @@ async def get_likes(
     :type: int
 
     :return: Dictionary with operation status and user list.
-    :rtype: dict
+    :rtype: Response
     """
     try:
         likes_people = api.likes.getList(
@@ -68,12 +68,12 @@ async def get_likes(
             extended=1,
         )
     except vk.exceptions.VkAPIError as e:
-        return dict_response(status='ERROR', reason=str(e))
+        return Response(status='ERROR', reason=str(e))
 
-    return dict_response(status='OK', likes=likes_people)
+    return Response(status='OK', likes=likes_people)
 
 
-async def auth(credentials: dict) -> dict:
+async def auth(credentials: dict) -> Response:
     """User authentication function through VK API.
 
     Initializes vk_session and vk_api.
@@ -82,7 +82,7 @@ async def auth(credentials: dict) -> dict:
     :type: dict
 
     :return: Dictionary with status operations and initialized objects vk_api and vk_session.
-    :rtype: dict
+    :rtype: Response
     """
     try:
         vk_session = vk.AuthSession(
@@ -92,5 +92,5 @@ async def auth(credentials: dict) -> dict:
         )
         vk_api = vk.API(vk_session, v=VK_API_VERSION, lang=VK_API_LANG, timeout=VK_API_TIMEOUT)
     except vk.exceptions.VkAuthError as e:
-        return dict_response(status='ERROR', reason=str(e))
-    return dict_response(status='OK', vk_api=vk_api, vk_session=vk_session)
+        return Response(status='ERROR', reason=str(e))
+    return Response(status='OK', vk_api=vk_api, vk_session=vk_session)

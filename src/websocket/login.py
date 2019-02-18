@@ -24,14 +24,14 @@ class WSLogin(web.View):
 
                 user = User()
                 result = await user.auth(login=json_request['login'], password=json_request['password'])
-                if result['status'] == 'ERROR':
+                if result.is_error():
                     self.request.app['logger'].error(result)
                     await ws.send_json(data=result)
                 else:
                     self.request.app['users'][user.vk_session.access_token] = user
-                    await ws.send_json({'status': result['status'], 'token': user.vk_session.access_token})
 
-                    self.request.app['logger'].info(result)
+                    self.request.app['logger'].error("User logged in via WebScoket.")
+                    await ws.send_json({'status': result['status'], 'token': user.vk_session.access_token})
 
             elif msg.type == WSMsgType.ERROR:
                 self.request.app['logger'].error('ws connection closed with exception %s' % ws.exception())
