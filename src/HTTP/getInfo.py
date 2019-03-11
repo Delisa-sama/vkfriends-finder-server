@@ -3,11 +3,11 @@ from urllib import parse
 from aiohttp import web
 
 from src.API.response import Response
-from src.API.vkapirequest import get_likes
+from src.API.vkapirequest import get_info
 from src.Decorators.authentication import authentication
 
 
-class HTTPGetLikes(web.View):
+class HTTPGetInfo(web.View):
     """A Class used to represent Web View of GetLikes method via HTTP."""
 
     @authentication
@@ -21,17 +21,14 @@ class HTTPGetLikes(web.View):
         :rtype: web.Response
         """
         try:
-            filters = await self.request.json()
-            owner_id, item_id = parse.urlparse(filters['url']).query[6:].split('_')
+            ids = parse.urlparse(self.request.query['ids'])
         except KeyError:
             self.request.app['logger'].error("URL parse error.")
             return web.json_response(Response(status='ERROR', reason="URL parse error."))
 
-        result = await get_likes(
+        result = await get_info(
             api=self.request.app['users'][token].vk_api,
-            owner_id=owner_id,
-            item_id=item_id,
-            filters=filters,
+            user_ids=ids
         )
         self.request.app['logger'].info("HTTPGetLikes.get called.")
 

@@ -8,7 +8,7 @@ class HTTPLogin(web.View):
     """A Class used to represent Web View of Login method via HTTP."""
 
     async def post(self) -> web.Response:
-        """HTTP Authentication Feature.
+        """HTTP Decorators Feature.
 
         :return: JSON response with result information.
         :rtype: web.Reponse

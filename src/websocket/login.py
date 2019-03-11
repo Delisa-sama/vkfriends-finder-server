@@ -9,7 +9,7 @@ class WSLogin(web.View):
     """A Class used to represent Web View of Login method via WebSocket."""
 
     async def get(self) -> web.WebSocketResponse:
-        """HTTP Authentication Feature.
+        """HTTP Decorators Feature.
 
         :return: JSON response with result information.
         :rtype: web.WebSocketResponse

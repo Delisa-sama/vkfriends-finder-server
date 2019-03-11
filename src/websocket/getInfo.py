@@ -2,16 +2,16 @@ import json
 
 from aiohttp import web, WSMsgType
 
-from src.API.vkapirequest import get_friends
+from src.API.vkapirequest import get_info
 from src.Decorators.authentication import authentication
 
 
-class WSGetFriends(web.View):
+class WSGetInfo(web.View):
     """A Class used to represent Web View of GetFriends method via WebSocket."""
 
     @authentication
     async def get(self, token: str) -> web.WebSocketResponse:
-        """The function allows you to get information about all the friends of a given user.
+        """The function allows you to get information about all users from given ids.
 
         :param token: Token of current user.
         :type: str
@@ -26,11 +26,11 @@ class WSGetFriends(web.View):
         async for msg in ws:
             if msg.type == WSMsgType.TEXT:
                 json_request = json.loads(msg.data)
-                result = await get_friends(
+                result = await get_info(
                     api=self.request.app['users'][token].vk_api,
-                    target_id=json_request['id']
+                    user_ids=json_request['ids']
                 )
-                self.request.app['logger'].info("WSGetFriends.get called.")
+                self.request.app['logger'].info("WSGetInfo.get called.")
                 await ws.send_json(result)
 
             elif msg.type == WSMsgType.ERROR:

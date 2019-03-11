@@ -1,6 +1,6 @@
 from aiohttp import web
 
-from src.Authentication.decorator import authentication
+from src.Decorators.authentication import authentication
 
 
 class WSLogout(web.View):

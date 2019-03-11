@@ -22,19 +22,19 @@ def authentication(func: typing.Callable) -> typing.Callable:
         try:
             token = query_params['token'][0]
         except KeyError as e:
-            view.request.app['logger'].error(str(e))
+            view.request.app['logger'].error("Token not found: " + str(e))
             token = None
 
         if token in view.request.app['users']:
             view.request.app['logger'].info("User logged in via token.")
             response = await func(view, token)
         elif url.scheme == 'ws':
-            view.request.app['logger'].info("User connected via WebSocket not authenticated.")
+            view.request.app['logger'].info("User authentication error when connect via WebSocket.")
             response = web.WebSocketResponse()
             await response.prepare(view.request)
-            await response.send_json(Response(status='ERROR', reason="Not authenticated token, login please."))
+            await response.send_json(Response(status='ERROR', reason="Not valid token, login please."))
         else:
-            view.request.app['logger'].info("User connected via HTTP not authenticated.")
+            view.request.app['logger'].info("User authentication error when connect via HTTP.")
             response = web.json_response(
                 Response(status='ERROR', reason="Not authenticated token, login please."))
 

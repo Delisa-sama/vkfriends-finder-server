@@ -6,7 +6,8 @@ from src.settings import VK_API_APP_ID, VK_API_TIMEOUT, VK_API_LANG, VK_API_VERS
 
 async def get_info(
         api: vk.api,
-        user_ids: list = None):
+        user_ids: list = None,
+        filters: dict = None) -> Response:
     """The function allows you to take extended information about users.
 
     :param api: A VKAPI of current user.
@@ -15,7 +16,12 @@ async def get_info(
     :param user_ids: List of user ids about which you need to get extended information.
     :type: list
     """
-    pass
+    try:
+        # TODO: Add filters
+        info = api.users.get(user_ids=user_ids)
+        return Response(status='OK', info=str(info))
+    except vk.exceptions.VkAPIError as e:
+        return Response(status='ERROR', reason=str(e))
 
 
 async def get_friends(
@@ -34,18 +40,18 @@ async def get_friends(
     """
     try:
         friends = api.friends.get(user_id=target_id)
+        return Response(status='OK', friends=str(friends))
     except vk.exceptions.VkAPIError as e:
         return Response(status='ERROR', reason=str(e))
     except AttributeError as e:
         return Response(status='ERROR', reason='Not authenticated')
 
-    return Response(status='OK', friends=str(friends))
-
 
 async def get_likes(
         api: vk.api,
         item_id: int,
-        owner_id: int = 0) -> Response:
+        owner_id: int = 0,
+        filters: dict = None) -> Response:
     """A function that returns information about people who liked the post with the specified id.
 
     :param api: A VKAPI of current user.
@@ -67,10 +73,13 @@ async def get_likes(
             item_id=item_id,
             extended=1,
         )
+        user_ids = [user['id'] for user in likes_people['items']]
+        users_info = await get_info(api=api,
+                                    user_ids=user_ids,
+                                    filters=filters)
+        return Response(status='OK', likes=users_info)
     except vk.exceptions.VkAPIError as e:
         return Response(status='ERROR', reason=str(e))
-
-    return Response(status='OK', likes=likes_people)
 
 
 async def auth(credentials: dict) -> Response:
@@ -91,6 +100,8 @@ async def auth(credentials: dict) -> Response:
             user_password=credentials['password']
         )
         vk_api = vk.API(vk_session, v=VK_API_VERSION, lang=VK_API_LANG, timeout=VK_API_TIMEOUT)
+        return Response(status='OK', vk_api=vk_api, vk_session=vk_session)
     except vk.exceptions.VkAuthError as e:
         return Response(status='ERROR', reason=str(e))
-    return Response(status='OK', vk_api=vk_api, vk_session=vk_session)
+    except KeyError:
+        return Response(status='ERROR', reason="Lack of login or password")
