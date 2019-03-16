@@ -17,5 +17,5 @@ class WSLogout(web.View):
         await ws.send_json({'status': "OK"})
 
         self.request.app['websockets'].remove(ws)
-        self.request.app['logger'].info('websocket connection closed')
+        self.request.app['logger'].info('WS connection closed')
         return ws

@@ -10,10 +10,10 @@ from cryptography import fernet
 from src.HTTP.getLikes import HTTPGetLikes
 from src.HTTP.login import HTTPLogin
 from src.HTTP.logout import HTTPLogout
+from src.WS.getFriends import WSGetFriends
+from src.WS.login import WSLogin
+from src.WS.logout import WSLogout
 from src.logger import init_logger
-from src.websocket.getFriends import WSGetFriends
-from src.websocket.login import WSLogin
-from src.websocket.logout import WSLogout
 
 ROUTES = [
     ('GET', '/ws/login', 'wslogin', WSLogin),

@@ -2,7 +2,7 @@ from urllib import parse
 
 from aiohttp import web
 
-from src.API.response import Response
+from src.API.response import Response, ResponseTypes, ResponseStatus
 from src.API.vkapirequest import get_info
 from src.Decorators.authentication import authentication
 
@@ -24,7 +24,8 @@ class HTTPGetInfo(web.View):
             ids = parse.urlparse(self.request.query['ids'])
         except KeyError:
             self.request.app['logger'].error("URL parse error.")
-            return web.json_response(Response(status='ERROR', reason="URL parse error."))
+            return web.json_response(Response(status=ResponseStatus.SERVER_ERROR, reason="URL parse error.",
+                                              response_type=ResponseTypes.ERROR))
 
         result = await get_info(
             api=self.request.app['users'][token].vk_api,
