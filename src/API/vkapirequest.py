@@ -38,6 +38,17 @@ class VkAPI:
             print(user_ids)
             info = self.api.users.get(user_ids=user_ids, fields=fields)
             print(info)
+            for user in info:
+                user['city'] = user['city']['title']
+                user['photoUrl'] = user['photo_200_orig']
+                del user['photo_200_orig']
+                user['isOnline'] = user['online']
+                del user['online']
+                user['firstName'] = user['first_name']
+                del user['first_name']
+                user['lastName'] = user['last_name']
+                del user['last_name']
+
             if filters is not None:
                 def calculate_age(born):
                     today = datetime.datetime.now()
@@ -48,7 +59,7 @@ class VkAPI:
                                              and filters['minAge']
                                              < calculate_age(datetime.datetime.strptime(x['bdate'], "%d.%m.%Y"))
                                              < filters['maxAge']
-                                             and (x['city'].get('title', "") == filters['city']
+                                             and (x['city'] == filters['city']
                                                   and filters['city'] != ""),
                                    info))
 

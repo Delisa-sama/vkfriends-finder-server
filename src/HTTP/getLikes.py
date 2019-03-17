@@ -4,6 +4,7 @@ from aiohttp import web
 
 from src.API.response import Response, ResponseTypes, ResponseStatus
 from src.Decorators.authentication import authentication
+from src.HTTP.Response import json_response
 
 
 class HTTPGetLikes(web.View):
@@ -37,4 +38,4 @@ class HTTPGetLikes(web.View):
         print(result)
         self.request.app['logger'].info("HTTPGetLikes.get called.")
 
-        return web.json_response(result)
+        return json_response(result)
