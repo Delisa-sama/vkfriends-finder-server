@@ -1,7 +1,7 @@
 from aiohttp import web
 
 from src.API.response import Response, ResponseTypes, ResponseStatus
-from src.API.user import User
+from src.API.vkapirequest import VkAPI
 
 
 class HTTPLogin(web.View):
@@ -15,8 +15,13 @@ class HTTPLogin(web.View):
         """
         data = await self.request.json()
         try:
-            user = User()
-            result = await user.auth(login=data['login'], password=data['password'])
+            vk_api = VkAPI()
+            result = await vk_api.auth(
+                {
+                    'login': data['login'],
+                    'password': data['password']
+                }
+            )
             self.request.app['logger'].error("User logged in via HTTPLogin.")
         except KeyError as e:
             self.request.app['logger'].error("Lack of login or password")
@@ -29,6 +34,6 @@ class HTTPLogin(web.View):
             return web.json_response(Response(status=result['status'], reason=result['reason'], token='NULL',
                                               response_type=ResponseTypes.ERROR))
 
-        self.request.app['users'][user.vk_session.access_token] = user
-        return web.json_response(Response(status=result['status'], token=user.vk_session.access_token, reason='OK',
+        self.request.app['users'][vk_api.session.access_token] = vk_api
+        return web.json_response(Response(status=result['status'], token=vk_api.session.access_token, reason='OK',
                                           response_type=ResponseTypes.AUTH_TOKEN))

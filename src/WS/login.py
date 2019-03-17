@@ -3,7 +3,8 @@ import json
 from aiohttp import web, WSMsgType
 
 from src.API.response import Response, ResponseTypes, ResponseStatus
-from src.API.user import User
+from src.API.vkapirequest import VkAPI
+from src.WS.Response import WSResponse
 
 
 class WSLogin(web.View):
@@ -15,31 +16,38 @@ class WSLogin(web.View):
         :return: JSON response with result information.
         :rtype: web.WebSocketResponse
         """
-        ws = web.WebSocketResponse()
+        ws = WSResponse()
         await ws.prepare(self.request)
+        self.request.app['logger'].info("User connected in via WebScoket.")
         self.request.app['websockets'].append(ws)
 
         async for msg in ws:
-            if msg.type == WSMsgType.BINARY:
+            if msg.type != WSMsgType.ERROR:
                 json_request = json.loads(str(msg.data, encoding='utf-8'))
+                print(json_request)
                 try:
-                    user = User()
-                    result = await user.auth(login=json_request['login'], password=json_request['password'])
+                    vk_api = VkAPI()
+                    result = await vk_api.auth(
+                        {
+                            'login': json_request['login'],
+                            'password': json_request['password']
+                        }
+                    )
                     if result.is_error():
                         self.request.app['logger'].error(result)
                         await ws.send_json(data=result)
                     else:
-                        self.request.app['users'][user.vk_session.access_token] = user
+                        self.request.app['users'][vk_api.session.access_token] = vk_api
 
                         self.request.app['logger'].error("User logged in via WebScoket.")
 
-                        await ws.send_json({'status': result['status'], 'token': user.vk_session.access_token})
+                        await ws.send_json({'status': result['status'], 'token': vk_api.session.access_token})
                 except KeyError as e:
                     self.request.app['logger'].error(f"WSLogin.get error: {str(e)}.")
                     await ws.send_json(
                         Response(status=ResponseStatus.SERVER_ERROR, reason=str(e), response_type=ResponseTypes.ERROR))
 
-            elif msg.type == WSMsgType.ERROR:
+            else:
                 self.request.app['logger'].error('ws connection closed with exception %s' % ws.exception())
 
         self.request.app['websockets'].remove(ws)

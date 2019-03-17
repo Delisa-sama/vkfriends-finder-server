@@ -3,7 +3,6 @@ from urllib import parse
 from aiohttp import web
 
 from src.API.response import Response, ResponseTypes, ResponseStatus
-from src.API.vkapirequest import get_info
 from src.Decorators.authentication import authentication
 
 
@@ -26,9 +25,8 @@ class HTTPGetInfo(web.View):
             self.request.app['logger'].error("URL parse error.")
             return web.json_response(Response(status=ResponseStatus.SERVER_ERROR, reason="URL parse error.",
                                               response_type=ResponseTypes.ERROR))
-
-        result = await get_info(
-            api=self.request.app['users'][token].vk_api,
+        api = self.request.app['users'][token]
+        result = await api.get_info(
             user_ids=ids
         )
         self.request.app['logger'].info("HTTPGetLikes.get called.")
