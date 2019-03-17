@@ -1,3 +1,5 @@
+import datetime
+
 import vk
 
 from src.API.response import Response, ResponseTypes, ResponseStatus
@@ -7,19 +9,20 @@ from src.settings import VK_API_APP_ID, VK_API_TIMEOUT, VK_API_LANG, VK_API_VERS
 class VkAPI:
 
     def __init__(self):
-        self.api = None
+        self.api: vk.API = None
 
     async def get_profileinfo(self):
         try:
             info = self.api.account.getProfileInfo()
-            return Response(status=ResponseStatus.OK, info=str(info), response_type=ResponseTypes.USERS_INFO)
+            return Response(status=ResponseStatus.OK, info=info, response_type=ResponseTypes.USERS_INFO)
         except vk.exceptions.VkAPIError as e:
             return Response(status=ResponseStatus.EXTERNAL_ERROR, reason=str(e), response_type=ResponseTypes.ERROR)
 
     async def get_info(
             self,
             user_ids: list = None,
-            fields: str = '') -> Response:
+            fields: str = 'relation, bdate, photo_200_orig, nickname, online, sex, city',
+            filters: dict = None) -> Response:
         """The function allows you to take extended information about users.
 
         :param api: A VKAPI of current user.
@@ -32,8 +35,24 @@ class VkAPI:
         :type: str
         """
         try:
+            print(user_ids)
             info = self.api.users.get(user_ids=user_ids, fields=fields)
-            return Response(status=ResponseStatus.OK, info=str(info), response_type=ResponseTypes.USERS_INFO)
+            print(info)
+            if filters is not None:
+                def calculate_age(born):
+                    today = datetime.datetime.now()
+                    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+
+                info = list(filter(lambda x: x['sex'] == filters['sex']
+                                             and x.get('relation', 0) == filters['relation']
+                                             and filters['minAge']
+                                             < calculate_age(datetime.datetime.strptime(x['bdate'], "%d.%m.%Y"))
+                                             < filters['maxAge']
+                                             and (x['city'].get('title', "") == filters['city']
+                                                  and filters['city'] != ""),
+                                   info))
+
+            return Response(status=ResponseStatus.OK, info=info, response_type=ResponseTypes.USERS_INFO)
         except vk.exceptions.VkAPIError as e:
             return Response(status=ResponseStatus.EXTERNAL_ERROR, reason=str(e), response_type=ResponseTypes.ERROR)
 
@@ -65,7 +84,7 @@ class VkAPI:
         """
         try:
             friends = self.api.friends.get(user_id=target_id, fields=fields)
-            return Response(status=ResponseStatus.OK, friends=str(friends), response_type=ResponseTypes.FRIENDS_LIST)
+            return Response(status=ResponseStatus.OK, friends=friends, response_type=ResponseTypes.FRIENDS_LIST)
         except vk.exceptions.VkAPIError as e:
             return Response(status=ResponseStatus.EXTERNAL_ERROR, reason=str(e), response_type=ResponseTypes.ERROR)
         except AttributeError as e:
@@ -75,8 +94,7 @@ class VkAPI:
     async def get_likes(
             self,
             item_id: int,
-            owner_id: int = 0,
-            fields: str = '') -> Response:
+            owner_id: int = 0) -> Response:
         """A function that returns information about people who liked the post with the specified id.
 
         :param api: A VKAPI of current user.
@@ -96,12 +114,9 @@ class VkAPI:
                 type='post',
                 owner_id=owner_id,
                 item_id=item_id,
-                extended=1,
             )
-            user_ids = [user['id'] for user in likes_people['items']]
-            users_info = await self.get_info(user_ids=user_ids,
-                                             fields=fields)
-            return Response(status=ResponseStatus.OK, likes=users_info, reason='OK', response_type=ResponseTypes.LIKES)
+            user_ids = [id for id in likes_people['items']]
+            return Response(status=ResponseStatus.OK, likes=user_ids, reason='OK', response_type=ResponseTypes.LIKES)
         except vk.exceptions.VkAPIError as e:
             return Response(status=ResponseStatus.EXTERNAL_ERROR, reason=str(e), response_type=ResponseTypes.ERROR)
 
@@ -124,8 +139,7 @@ class VkAPI:
             )
 
             self.api = vk.API(self.session, v=VK_API_VERSION, lang=VK_API_LANG, timeout=VK_API_TIMEOUT)
-            return Response(status=ResponseStatus.OK, vk_api=self.api, vk_session=self.session,
-                            response_type=ResponseTypes.AUTH_TOKEN)
+            return Response(status=ResponseStatus.OK, response_type=ResponseTypes.AUTH_TOKEN)
         except vk.exceptions.VkAuthError as e:
             return Response(status=ResponseStatus.EXTERNAL_ERROR, reason=str(e), response_type=ResponseTypes.ERROR)
         except KeyError:

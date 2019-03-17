@@ -38,9 +38,7 @@ class WSLogin(web.View):
                         await ws.send_json(data=result)
                     else:
                         self.request.app['users'][vk_api.session.access_token] = vk_api
-
                         self.request.app['logger'].error("User logged in via WebScoket.")
-
                         await ws.send_json({'status': result['status'], 'token': vk_api.session.access_token})
                 except KeyError as e:
                     self.request.app['logger'].error(f"WSLogin.get error: {str(e)}.")

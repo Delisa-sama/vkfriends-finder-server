@@ -3,7 +3,7 @@ from urllib.parse import parse_qs, urlparse
 
 from aiohttp import web
 
-from src.API.response import Response, ResponseStatus
+from src.API.response import Response, ResponseStatus, ResponseTypes
 
 
 def authentication(func: typing.Callable) -> typing.Callable:
@@ -33,11 +33,13 @@ def authentication(func: typing.Callable) -> typing.Callable:
             response = web.WebSocketResponse()
             await response.prepare(view.request)
             await response.send_json(
-                Response(status=ResponseStatus.SERVER_ERROR, reason="Not valid token, login please."))
+                Response(status=ResponseStatus.SERVER_ERROR, reason="Not valid token, login please.",
+                         response_type=ResponseTypes.ERROR))
         else:
             view.request.app['logger'].info("User authentication error when connect via HTTP.")
             response = web.json_response(
-                Response(status=ResponseStatus.SERVER_ERROR, reason="Not authenticated token, login please."))
+                Response(status=ResponseStatus.SERVER_ERROR, reason="Not authenticated token, login please.",
+                         response_type=ResponseTypes.ERROR))
 
         return response
 

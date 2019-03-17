@@ -22,7 +22,8 @@ class HTTPLogin(web.View):
                     'password': data['password']
                 }
             )
-            self.request.app['logger'].error("User logged in via HTTPLogin.")
+            self.request.app['users'][vk_api.session.access_token] = vk_api
+            self.request.app['logger'].info("User logged in via HTTPLogin.")
         except KeyError as e:
             self.request.app['logger'].error("Lack of login or password")
             return web.json_response(
@@ -34,6 +35,5 @@ class HTTPLogin(web.View):
             return web.json_response(Response(status=result['status'], reason=result['reason'], token='NULL',
                                               response_type=ResponseTypes.ERROR))
 
-        self.request.app['users'][vk_api.session.access_token] = vk_api
         return web.json_response(Response(status=result['status'], token=vk_api.session.access_token, reason='OK',
                                           response_type=ResponseTypes.AUTH_TOKEN))
