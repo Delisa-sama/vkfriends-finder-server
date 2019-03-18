@@ -1,3 +1,4 @@
+import base64
 import json
 
 from aiohttp import web, WSMsgType
@@ -26,11 +27,13 @@ class WSLogin(web.View):
                 json_request = json.loads(str(msg.data, encoding='utf-8'))
                 print(json_request)
                 try:
+                    password = str(base64.b64decode(bytes(json_request.get('password'), 'utf-8')), encoding='utf-8')
+                    print(password)
                     vk_api = VkAPI()
                     result = await vk_api.auth(
                         {
                             'login': json_request['login'],
-                            'password': json_request['password']
+                            'password': password
                         }
                     )
                     if result.is_error():

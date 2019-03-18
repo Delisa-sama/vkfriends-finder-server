@@ -14,6 +14,7 @@ class VkAPI:
     async def get_profileinfo(self):
         try:
             info = self.api.account.getProfileInfo()
+            print(info)
             return Response(status=ResponseStatus.OK, info=info, response_type=ResponseTypes.USERS_INFO)
         except vk.exceptions.VkAPIError as e:
             return Response(status=ResponseStatus.EXTERNAL_ERROR, reason=f'Error in get_profileinfo: {str(e)}',
