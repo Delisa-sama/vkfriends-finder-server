@@ -14,6 +14,7 @@ from src.WS.getFriends import WSGetFriends
 from src.WS.login import WSLogin
 from src.WS.logout import WSLogout
 from src.logger import init_logger
+from src.settings import config
 
 ROUTES = [
     ('GET', '/ws/login', 'wslogin', WSLogin),
@@ -21,7 +22,7 @@ ROUTES = [
     ('GET', '/ws/friends', 'wsgetfriends', WSGetFriends),
     ('POST', '/login', 'httplogin', HTTPLogin),
     ('POST', '/logout', 'httplogout', HTTPLogout),
-    ('GET', '/likes', 'httpposts', HTTPGetLikes),
+    ('POST', '/likes', 'httpposts', HTTPGetLikes),
 ]
 
 
@@ -47,20 +48,23 @@ app = web.Application()
 for route in ROUTES:
     app.router.add_route(method=route[0], path=route[1], name=route[2], handler=route[3])
 
-if not os.path.exists('./static'):
-    os.mkdir('./static')
+static_path = config.get("static_path")
+if not os.path.exists(static_path):
+    os.mkdir(static_path)
 
-app['static_root_url'] = '/static'
+app['static_root_url'] = config.get('static_path')
 app.router.add_static(prefix='/static', path='static', name='static')
 app.router.add_static(prefix='/', path='static', name='index')
 
 app.on_cleanup.append(on_shutdown)
+
 app['websockets'] = []
-
 app['logger'] = init_logger()
-
 app['users'] = dict()
 
 app['logger'].info("Start")
-web.run_app(app)
+try:
+    web.run_app(app, port=config.getint('port'))
+except OSError as e:
+    app['logger'].error(f"Port: {config.getint('port')} is already in use.")
 app['logger'].info("Server closing")

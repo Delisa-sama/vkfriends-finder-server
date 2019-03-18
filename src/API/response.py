@@ -22,8 +22,9 @@ class Response(dict):
 
     def __init__(self, status: ResponseStatus = ResponseStatus.OK,
                  response_type: ResponseTypes = ResponseTypes.UNDEFINED,
+                 reason: str = 'OK',
                  **kwargs):
-        super().__init__(status=status, type=response_type, **kwargs)
+        super().__init__(status=status, type=response_type, reason=reason, **kwargs)
 
     def is_error(self) -> bool:
         """Method to check is status error

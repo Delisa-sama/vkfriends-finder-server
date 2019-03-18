@@ -3,6 +3,7 @@ __pycache__/
 .idea/
 output/
 src/static/
-src/tests/
+tests/
 src/todos
 src/logs/
+src/config.ini

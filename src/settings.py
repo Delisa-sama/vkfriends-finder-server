@@ -1,4 +1,20 @@
-VK_API_APP_ID = '6798117'
-VK_API_VERSION = '5.62'
-VK_API_LANG = 'ru'
-VK_API_TIMEOUT = 10
+import configparser
+from os.path import exists
+
+config_filename = 'config.ini'
+config = configparser.ConfigParser()
+config['DEFAULT'] = {
+    'port': 8080,
+    'vk_api_version': '5.62',
+    'vk_api_app_id': '6798117',
+    'vk_api_lang': 'ru',
+    'vk_api_timeout': 10,
+    'static_path': './static'
+}
+if not exists(config_filename):
+    with open(config_filename, 'w') as configfile:
+        config.write(configfile)
+else:
+    config.read(config_filename)
+
+config = config['DEFAULT']

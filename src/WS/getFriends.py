@@ -28,14 +28,17 @@ class WSGetFriends(web.View):
             if msg.type != WSMsgType.ERROR:
                 json_request = json.loads(str(msg.data, encoding='utf-8'))
                 print(json_request)
+                fields = json_request.get('fields', '')
+                fields = ', '.join(fields)
                 try:
                     self.request.app['logger'].info(f"WSGetFriends.get called with params: \n"
                                                     f"target_id: {json_request['id']}, \n"
-                                                    f"fields: {json_request['fields']}.")
+                                                    f"fields: {fields}.")
                     api = self.request.app['users'][token]
+
                     result = await api.get_friends(
                         target_id=json_request['id'],
-                        fields=json_request['fields'] if 'fields' in json_request else ''
+                        fields=fields
                     )
                     result['self'] = await api.get_profileinfo() \
                         if json_request['id'] == 0 else await api.get_info(

@@ -32,8 +32,8 @@ class HTTPLogin(web.View):
 
         if result.is_error():
             self.request.app['logger'].error(result)
-            return web.json_response(Response(status=result['status'], reason=result['reason'], token='NULL',
-                                              response_type=ResponseTypes.ERROR))
+            result['token'] = 'NULL'
+            return web.json_response(result)
 
-        return web.json_response(Response(status=result['status'], token=vk_api.session.access_token, reason='OK',
+        return web.json_response(Response(status=result['status'], token=vk_api.session.access_token,
                                           response_type=ResponseTypes.AUTH_TOKEN))
