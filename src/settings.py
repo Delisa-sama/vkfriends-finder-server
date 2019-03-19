@@ -5,7 +5,7 @@ config_filename = 'config.ini'
 config = configparser.ConfigParser()
 config['DEFAULT'] = {
     'port': 8080,
-    'vk_api_version': '5.62',
+    'vk_api_version': '5.92',
     'vk_api_app_id': '6798117',
     'vk_api_lang': 'ru',
     'vk_api_timeout': 10,

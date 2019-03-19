@@ -53,6 +53,9 @@ class VkAPI:
                     del user['first_name']
                     user['lastName'] = user.get('last_name', '')
                     del user['last_name']
+                    del user['is_closed']
+                    del user['can_access_closed']
+
 
                 def _filter(user: dict):
                     def _age(born: str):
