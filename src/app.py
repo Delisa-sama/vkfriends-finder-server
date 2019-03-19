@@ -68,3 +68,4 @@ try:
 except OSError as e:
     app['logger'].error(f"Port: {config.getint('port')} is already in use.")
 app['logger'].info("Server closing")
+
