@@ -8,7 +8,8 @@ class ResponseTypes(str, Enum):
     LAST_POST = 'last-post'
     UNDEFINED = 'undefined'
     ERROR = 'error'
-    LIKES = 'likes'
+    LIKES = 'liked-peoples'
+    COMMENTS = 'commented-peoples'
 
 
 class ResponseStatus(int, Enum):

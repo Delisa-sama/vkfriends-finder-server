@@ -6,7 +6,7 @@ from src.API.response import Response, ResponseTypes, ResponseStatus
 from src.Decorators.authentication import authentication
 
 
-class HTTPGetInfo(web.View):
+class HTTPGetUsersInfo(web.View):
     """A Class used to represent Web View of GetLikes method via HTTP."""
 
     @authentication
@@ -29,6 +29,6 @@ class HTTPGetInfo(web.View):
         result = await api.get_info(
             user_ids=ids
         )
-        self.request.app['logger'].info("HTTPGetLikes.get called.")
+        self.request.app['logger'].info("HTTPGetLikedPeoples.get called.")
 
         return web.json_response(result)

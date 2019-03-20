@@ -1,7 +1,6 @@
-from datetime import datetime as dt
-
 import vk
 
+from src.API.filter import user_filter
 from src.API.response import Response, ResponseTypes, ResponseStatus
 from src.settings import config
 
@@ -38,58 +37,10 @@ class VkAPI:
         """
         try:
             print(user_ids)
-            info = self.api.users.get(user_ids=user_ids, fields=fields)
-            print(info)
+            users = self.api.users.get(user_ids=user_ids, fields=fields)
+            users = user_filter(users=users, filters=filters)
 
-            if filters is not None:
-                for user in info:
-                    try:
-                        user_city = user.get('city', {})
-                        user['city'] = user_city.get('title', user.get('home_town', ''))
-                        user['photoUrl'] = user.get('photo_200_orig', 'https://vk.com/images/camera_200.png?ava=1')
-                        del user['photo_200_orig']
-                        user['isOnline'] = user.get('online', 0)
-                        del user['online']
-                        user['firstName'] = user.get('first_name', '')
-                        del user['first_name']
-                        user['lastName'] = user.get('last_name', '')
-                        del user['home_town']
-                        del user['last_name']
-                        del user['is_closed']
-                        del user['can_access_closed']
-                    except KeyError:
-                        pass
-
-                def _filter(user: dict):
-                    def _age(born: str):
-                        try:
-                            born: dt = dt.strptime(born, '%d.%m.%Y')
-                        except ValueError:
-                            return 0
-                        except TypeError:
-                            return 0
-                        today = dt.now()
-                        return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
-
-                    sex: bool = True if filters.get('sex', 0) == 0 \
-                        else user.get('sex', 0) == filters.get('sex', 0)
-
-                    relation: bool = True if filters.get('relation', 0) == 0 \
-                        else user.get('relation', 0) == filters.get('relation')
-
-                    user_age: int = _age(user.get('bdate'))
-                    if user_age == 0:
-                        user['bdate'] = ''
-                    age: bool = True if user_age == 0 \
-                        else filters.get('minAge', 0) <= user_age <= filters.get('maxAge', 100)
-                    city: bool = True if filters.get('city') == '' \
-                        else user.get('city').lower() == filters.get('city').lower()
-
-                    return sex and relation and age and city
-
-                info = list(filter(_filter, info))
-
-            return Response(status=ResponseStatus.OK, info=info, response_type=ResponseTypes.USERS_INFO)
+            return Response(status=ResponseStatus.OK, info=users, response_type=ResponseTypes.USERS_INFO)
         except vk.exceptions.VkAPIError as e:
             return Response(status=ResponseStatus.EXTERNAL_ERROR, reason=f'Error in get_info: {str(e)}',
                             response_type=ResponseTypes.ERROR)
@@ -129,7 +80,7 @@ class VkAPI:
             return Response(status=ResponseStatus.SERVER_ERROR, reason='Error in get_friends: Not authenticated',
                             response_type=ResponseTypes.ERROR)
 
-    async def get_likes(
+    async def get_liked_people(
             self,
             item_id: int,
             owner_id: int = 0) -> Response:
@@ -150,10 +101,37 @@ class VkAPI:
                 owner_id=owner_id,
                 item_id=item_id,
             )
-            user_ids = [id for id in likes_people['items']]
+            user_ids = [user_id for user_id in likes_people['items']]
             return Response(status=ResponseStatus.OK, likes=user_ids, response_type=ResponseTypes.LIKES)
         except vk.exceptions.VkAPIError as e:
-            return Response(status=ResponseStatus.EXTERNAL_ERROR, reason=f'Error in get_likes: {str(e)}',
+            return Response(status=ResponseStatus.EXTERNAL_ERROR, reason=f'Error in get_liked_people: {str(e)}',
+                            response_type=ResponseTypes.ERROR)
+
+    async def get_commented_peoples(
+            self,
+            post_id: int,
+            owner_id: int = 0) -> Response:
+        """A function that returns information about people who commented the post with the specified id.
+
+        :param item_id: Post id relative to owner_id.
+        :type: int
+
+        :param owner_id: Id of wall owner.
+        :type: int
+
+        :return: Dictionary with operation status and user list.
+        :rtype: Response
+        """
+        try:
+            commented_people = self.api.wall.getComments(
+                owner_id=owner_id,
+                post_id=post_id,
+                extended=1
+            )
+            user_ids = [user['id'] for user in commented_people['profiles']]
+            return Response(status=ResponseStatus.OK, commented=user_ids, response_type=ResponseTypes.COMMENTS)
+        except vk.exceptions.VkAPIError as e:
+            return Response(status=ResponseStatus.EXTERNAL_ERROR, reason=f'Error in get_commented_people: {str(e)}',
                             response_type=ResponseTypes.ERROR)
 
     async def auth(self, credentials: dict) -> Response:

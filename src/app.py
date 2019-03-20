@@ -7,7 +7,8 @@ from aiohttp_session import session_middleware
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
 
-from src.HTTP.getLikes import HTTPGetLikes
+from src.HTTP.getCommentedPeoples import HTTPGetCommentedPeoples
+from src.HTTP.getLikedPeoples import HTTPGetLikedPeoples
 from src.HTTP.login import HTTPLogin
 from src.HTTP.logout import HTTPLogout
 from src.WS.getFriends import WSGetFriends
@@ -22,7 +23,8 @@ ROUTES = [
     ('GET', '/ws/friends', 'wsgetfriends', WSGetFriends),
     ('POST', '/login', 'httplogin', HTTPLogin),
     ('POST', '/logout', 'httplogout', HTTPLogout),
-    ('POST', '/likes', 'httpposts', HTTPGetLikes),
+    ('POST', '/likes', 'httpposts', HTTPGetLikedPeoples),
+    ('POST', '/comments', 'httpcomments', HTTPGetCommentedPeoples)
 ]
 
 
