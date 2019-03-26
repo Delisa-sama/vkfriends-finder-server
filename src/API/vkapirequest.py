@@ -38,7 +38,7 @@ class VkAPI:
         try:
             print(user_ids)
             users = self.api.users.get(user_ids=user_ids, fields=fields)
-            users = user_filter(users=users, filters=filters)
+            users = user_filter(users=users, filters=filters) if filters is not None else users
 
             return Response(status=ResponseStatus.OK, info=users, response_type=ResponseTypes.USERS_INFO)
         except vk.exceptions.VkAPIError as e:

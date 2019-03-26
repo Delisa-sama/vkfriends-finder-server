@@ -23,7 +23,7 @@ class HTTPGetCommentedPeoples(web.View):
             owner_id, post_id = request['url'].split('wall')[1].split('_')  # /wall{owner_id}_{item_id}
             filters = request['filterKit']
             print(f'Filters: {filters}')
-        except KeyError:
+        except Exception:
             self.request.app['logger'].error("URL parse error.")
             return web.json_response(Response(status=ResponseStatus.SERVER_ERROR, reason="URL parse error.",
                                               response_type=ResponseTypes.ERROR))

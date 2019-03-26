@@ -16,18 +16,23 @@ class HTTPLogin(web.View):
         data = await self.request.json()
         try:
             vk_api = VkAPI()
-            result = await vk_api.auth(
-                {
-                    'login': data['login'],
-                    'password': data['password']
-                }
-            )
+            credentials = {
+                'login': data['login'],
+                'password': data['password']
+            }
+            self.request.app['logger'].info(credentials)
+            result = await vk_api.auth(credentials=credentials)
             self.request.app['users'][vk_api.session.access_token] = vk_api
             self.request.app['logger'].info("User logged in via HTTPLogin.")
         except KeyError as e:
-            self.request.app['logger'].error("Lack of login or password")
+            self.request.app['logger'].error("Lack of login or password: " + str(e))
             return web.json_response(
-                Response(status=ResponseStatus.SERVER_ERROR, reason=str(e), token='NULL',
+                Response(status=ResponseStatus.SERVER_ERROR, reason="Lack of login or password", token='NULL',
+                         response_type=ResponseTypes.ERROR))
+        except AttributeError as e:
+            self.request.app['logger'].error("Authentication failed: " + str(e))
+            return web.json_response(
+                Response(status=ResponseStatus.SERVER_ERROR, reason='VK Authentication failed.', token='NULL',
                          response_type=ResponseTypes.ERROR))
 
         if result.is_error():

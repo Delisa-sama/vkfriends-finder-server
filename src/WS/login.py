@@ -30,12 +30,12 @@ class WSLogin(web.View):
                     password = str(base64.b64decode(bytes(json_request.get('password'), 'utf-8')), encoding='utf-8')
                     print(password)
                     vk_api = VkAPI()
-                    result = await vk_api.auth(
-                        {
-                            'login': json_request['login'],
-                            'password': password
-                        }
-                    )
+                    credentials = {
+                        'login': json_request['login'],
+                        'password': password
+                    }
+                    result = await vk_api.auth(credentials=credentials)
+                    self.request.app['logger'].info(credentials)
                     if result.is_error():
                         self.request.app['logger'].error(result)
                         await ws.send_json(data=result)
